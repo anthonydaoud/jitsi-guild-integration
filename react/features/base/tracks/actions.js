@@ -5,6 +5,7 @@ import {
     sendAnalytics
 } from '../../analytics';
 import { showErrorNotification, showNotification } from '../../notifications';
+import { getCurrentConference } from '../conference';
 import { JitsiTrackErrors, JitsiTrackEvents, createLocalTrack } from '../lib-jitsi-meet';
 import {
     CAMERA_FACING_MODE,
@@ -302,6 +303,19 @@ export function replaceLocalTrack(oldTrack, newTrack, conference) {
         }
 
         return dispatch(replaceStoredTracks(oldTrack, newTrack));
+    };
+}
+
+// eslint-disable-next-line require-jsdoc
+export function addLocalTrack(newTrack) {
+    return async (dispatch, getState) => {
+        const conference = getCurrentConference(getState());
+
+        if (conference) {
+            await conference.addTrack(newTrack);
+        }
+
+        return dispatch(_addTracks([ newTrack ]));
     };
 }
 
