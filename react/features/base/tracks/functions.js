@@ -399,6 +399,19 @@ export function getTrackByMediaTypeAndParticipant(
     );
 }
 
+// eslint-disable-next-line require-jsdoc
+export function getLastTrackByMediaTypeAndParticipant(
+        tracks,
+        mediaType,
+        participantId) {
+    const userTracks = tracks.filter(
+        t => Boolean(t.jitsiTrack) && t.participantId === participantId && t.mediaType === mediaType
+    );
+    const selected = userTracks[userTracks.length - 1];
+
+    return selected;
+}
+
 /**
  * Returns the track if any which corresponds to a specific instance
  * of JitsiLocalTrack or JitsiRemoteTrack.
