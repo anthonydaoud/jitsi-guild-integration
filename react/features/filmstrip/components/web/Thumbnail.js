@@ -8,7 +8,7 @@ import { Avatar } from '../../../base/avatar';
 import { isNameReadOnly } from '../../../base/config';
 import { isMobileBrowser } from '../../../base/environment/utils';
 import JitsiMeetJS from '../../../base/lib-jitsi-meet/_';
-import { MEDIA_TYPE, VideoTrack } from '../../../base/media';
+import { MEDIA_TYPE, VIDEO_TYPE, VideoTrack } from '../../../base/media';
 import {
     getParticipantByIdOrUndefined,
     getParticipantCount,
@@ -19,7 +19,10 @@ import { ASPECT_RATIO_NARROW } from '../../../base/responsive-ui/constants';
 import { isTestModeEnabled } from '../../../base/testing';
 import {
     getLocalAudioTrack,
-    getLocalVideoTrack,
+    getLocalCameraTrack,
+    getLocalScreenTrack,
+    getParticipantsCameraTrack,
+    getParticipantsScreenTrack,
     getTrackByMediaTypeAndParticipant,
     updateLastTrackVideoMediaEvent
 } from '../../../base/tracks';
@@ -227,7 +230,9 @@ export type Props = {|
     /**
      * Styles that will be set to the Thumbnail's main span element.
      */
-    style?: ?Object
+    style?: ?Object,
+
+    _hasOnlyScreenStream: boolean,
 |};
 
 /**
@@ -346,14 +351,14 @@ class Thumbnail extends Component<Props, State> {
         const {
             _currentLayout,
             _isAudioOnly,
-            _isScreenSharing
+            _videoTrack
         } = this.props;
         const { displayMode } = this.state;
         const tileViewActive = _currentLayout === LAYOUTS.TILE_VIEW;
 
         if (![ DISPLAY_VIDEO, DISPLAY_VIDEO_WITH_NAME ].includes(displayMode)
             && tileViewActive
-            && _isScreenSharing
+            && _videoTrack && _videoTrack.videoType === VIDEO_TYPE.DESKTOP
             && !_isAudioOnly) {
             sendAnalytics(createScreenSharingIssueEvent({
                 source: 'thumbnail',
@@ -404,7 +409,7 @@ class Thumbnail extends Component<Props, State> {
             _currentLayout,
             _isAudioOnly,
             _isCurrentlyOnLargeVideo,
-            _isScreenSharing,
+            _hasOnlyScreenStream,
             _isVideoPlayable,
             _participant,
             _videoTrack
@@ -422,7 +427,7 @@ class Thumbnail extends Component<Props, State> {
             canPlayEventReceived,
             videoStream: Boolean(_videoTrack),
             isRemoteParticipant: !_participant?.isFakeParticipant && !_participant?.local,
-            isScreenSharing: _isScreenSharing,
+            hasOnlyScreenStream: _hasOnlyScreenStream,
             videoStreamMuted: _videoTrack ? _videoTrack.muted : 'no stream'
         };
     }
@@ -1044,8 +1049,9 @@ function _mapStateToProps(state, ownProps): Object {
     const isLocal = participant?.local ?? true;
     const tracks = state['features/base/tracks'];
     const { participantsVolume } = state['features/filmstrip'];
-    const _videoTrack = isLocal
-        ? getLocalVideoTrack(tracks) : getTrackByMediaTypeAndParticipant(tracks, MEDIA_TYPE.VIDEO, participantID);
+    const _cameraTrack = isLocal ? getLocalCameraTrack(tracks) : getParticipantsCameraTrack(tracks, participantID);
+    const _screenTrack = isLocal ? getLocalScreenTrack(tracks) : getParticipantsScreenTrack(tracks, participantID);
+    const _videoTrack = _cameraTrack || _screenTrack;
     const _audioTrack = isLocal
         ? getLocalAudioTrack(tracks) : getTrackByMediaTypeAndParticipant(tracks, MEDIA_TYPE.AUDIO, participantID);
     const _currentLayout = getCurrentLayout(state);
@@ -1118,6 +1124,7 @@ function _mapStateToProps(state, ownProps): Object {
         _isMobile,
         _isMobilePortrait,
         _isScreenSharing: _videoTrack?.videoType === 'desktop',
+        _hasOnlyScreenStream: Boolean(_screenTrack) && !_cameraTrack,
         _isTestModeEnabled: isTestModeEnabled(state),
         _isVideoPlayable: id && isVideoPlayable(state, id),
         _indicatorIconSize: NORMAL,
