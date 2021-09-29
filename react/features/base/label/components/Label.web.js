@@ -72,10 +72,10 @@ const styles = theme => {
             }
         },
         [COLORS.green]: {
-            background: '#31B76A'
+            background: theme.palette.success02
         },
         [COLORS.red]: {
-            background: '#E34F56'
+            background: theme.palette.actionDanger
         }
     };
 };
