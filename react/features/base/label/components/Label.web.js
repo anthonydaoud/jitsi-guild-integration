@@ -19,6 +19,11 @@ type Props = AbstractProps & {
     classes: Object,
 
     /**
+     * Own CSS class name.
+     */
+    className: string,
+
+    /**
      * The color of the label.
      */
     color: string,
@@ -95,6 +100,7 @@ class Label extends AbstractLabel<Props, *> {
     render() {
         const {
             classes,
+            className,
             color,
             icon,
             id,
@@ -104,7 +110,8 @@ class Label extends AbstractLabel<Props, *> {
         const labelClassName = clsx(
             classes.label,
             onClick && classes.clickable,
-            color && classes[color]
+            color && classes[color],
+            className
         );
 
         return (
