@@ -276,7 +276,7 @@ module.exports = (_env, argv) => {
     const mode = typeof argv.mode === 'undefined' ? 'production' : argv.mode;
     const isProduction = mode === 'production';
     const configOptions = {
-        detectCircularDeps: Boolean(process.env.DETECT_CIRCULAR_DEPS) || !isProduction,
+        detectCircularDeps: false,
         minimize: isProduction
     };
     const config = getConfig(configOptions);
