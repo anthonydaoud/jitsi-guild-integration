@@ -1,1 +1,39 @@
 /** Insert custom CSS for any additional content in the welcome page **/
+.welcome-wallet-button {
+    border: 0;
+    font-size: 14px;
+    background: #0074E0;
+    border-radius: 3px;
+    color: #FFFFFF;
+    cursor: pointer;
+    width: 150px;
+    height: 32px;
+    position: absolute;
+    top: 32px;
+    right: 70px;
+    //z-index: $zindex2;
+
+    &:focus-within {
+        outline: auto 2px #022e61;
+    }
+}
+
+#meeting_start {
+    display: flex;
+    margin: 0 auto;
+}
+
+.welcome-page-button {
+    margin-right: 25;
+}
+
+.welcome-guild-button {
+    margin-right: 25px;
+    border: 0;
+    font-size: 14px;
+    padding: 0px 20px;
+    background: #0074e0;
+    border-radius: 3px;
+    color: #fff;
+    cursor: pointer;
+}

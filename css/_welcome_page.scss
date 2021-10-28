@@ -53,15 +53,15 @@ body.welcome-page {
         }
 
         #enter_room {
-            display: $welcomePageEnterRoomDisplay;
+            //display: $welcomePageEnterRoomDisplay;
             align-items: center;
-            max-width: 480px;
+            max-width: 400px;
             width: $welcomePageEnterRoomWidth;
             z-index: $zindex2;
             background-color: #fff;
             padding: $welcomePageEnterRoomPadding;
             border-radius: 4px;
-            margin: $welcomePageEnterRoomMargin;
+            margin: 0 25px;
 
             .enter-room-input-container {
                 text-align: left;
@@ -187,7 +187,7 @@ body.welcome-page {
         border-radius: 3px;
         color: #FFFFFF;
         cursor: pointer;
-        padding: 16px 20px;
+        padding: 0px 20px;
 
         &:focus-within {
             outline: auto 2px #022e61;

@@ -10,6 +10,7 @@ import { connect } from '../../base/redux';
 import { CalendarList } from '../../calendar-sync';
 import { RecentList } from '../../recent-list';
 import { SettingsButton, SETTINGS_TABS } from '../../settings';
+import { WalletConnect, GuildMeetingStart } from '../../web3';
 
 import { AbstractWelcomePage, _mapStateToProps } from './AbstractWelcomePage';
 import Tabs from './Tabs';
@@ -170,6 +171,11 @@ class WelcomePage extends AbstractWelcomePage {
      * @inheritdoc
      * @returns {ReactElement|null}
      */
+    /*
+    <div className = 'welcome-page-button'>
+                        <button>Connect Wallet</button>
+                    </div>
+*/
     render() {
         const { _moderatedRoomServiceUrl, t } = this.props;
         const { DEFAULT_WELCOME_PAGE_LOGO_URL, DISPLAY_WELCOME_FOOTER } = interfaceConfig;
@@ -178,7 +184,6 @@ class WelcomePage extends AbstractWelcomePage {
         const showAdditionalToolbarContent = this._shouldShowAdditionalToolbarContent();
         const contentClassName = showAdditionalContent ? 'with-content' : 'without-content';
         const footerClassName = DISPLAY_WELCOME_FOOTER ? 'with-footer' : 'without-footer';
-
         return (
             <div
                 className = { `welcome ${contentClassName} ${footerClassName}` }
@@ -188,6 +193,8 @@ class WelcomePage extends AbstractWelcomePage {
                 </div>
 
                 <div className = 'header'>
+                    <WalletConnect dispatch= { this.props.dispatch }/>
+
                     <div className = 'welcome-page-settings'>
                         <SettingsButton
                             defaultTab = { SETTINGS_TABS.CALENDAR } />
@@ -206,29 +213,31 @@ class WelcomePage extends AbstractWelcomePage {
                         <span className = 'header-text-subtitle'>
                             { t('welcomepage.headerSubtitle')}
                         </span>
-                        <div id = 'enter_room'>
-                            <div className = 'enter-room-input-container'>
-                                <form onSubmit = { this._onFormSubmit }>
-                                    <input
-                                        aria-disabled = 'false'
-                                        aria-label = 'Meeting name input'
-                                        autoFocus = { true }
-                                        className = 'enter-room-input'
-                                        id = 'enter_room_field'
-                                        onChange = { this._onRoomChange }
-                                        pattern = { ROOM_NAME_VALIDATE_PATTERN_STR }
-                                        placeholder = { this.state.roomPlaceholder }
-                                        ref = { this._setRoomInputRef }
-                                        title = { t('welcomepage.roomNameAllowedChars') }
-                                        type = 'text'
-                                        value = { this.state.room } />
-                                    <div
-                                        className = { _moderatedRoomServiceUrl
-                                            ? 'warning-with-link'
-                                            : 'warning-without-link' }>
-                                        { this._renderInsecureRoomNameWarning() }
-                                    </div>
-                                </form>
+                        <div id = 'meeting_start'>
+                            <div id = 'enter_room'>
+                                <div className = 'enter-room-input-container'>
+                                    <form onSubmit = { this._onFormSubmit }>
+                                        <input
+                                            aria-disabled = 'false'
+                                            aria-label = 'Meeting name input'
+                                            autoFocus = { true }
+                                            className = 'enter-room-input'
+                                            id = 'enter_room_field'
+                                            onChange = { this._onRoomChange }
+                                            pattern = { ROOM_NAME_VALIDATE_PATTERN_STR }
+                                            placeholder = { this.state.roomPlaceholder }
+                                            ref = { this._setRoomInputRef }
+                                            title = { t('welcomepage.roomNameAllowedChars') }
+                                            type = 'text'
+                                            value = { this.state.room } />
+                                        <div
+                                            className = { _moderatedRoomServiceUrl
+                                                ? 'warning-with-link'
+                                                : 'warning-without-link' }>
+                                            { this._renderInsecureRoomNameWarning() }
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                             <button
                                 aria-disabled = 'false'
@@ -240,7 +249,11 @@ class WelcomePage extends AbstractWelcomePage {
                                 type = 'button'>
                                 { t('welcomepage.startMeeting') }
                             </button>
+                            <GuildMeetingStart dispatch= { this.dispatch }/>
                         </div>
+                        
+
+                        
 
                         { _moderatedRoomServiceUrl && (
                             <div id = 'moderated-meetings'>

@@ -54,4 +54,5 @@ import '../toolbox/reducer';
 import '../transcribing/reducer';
 import '../video-layout/reducer';
 import '../videosipgw/reducer';
+import '../web3/reducer';
 import '../welcome/reducer';
