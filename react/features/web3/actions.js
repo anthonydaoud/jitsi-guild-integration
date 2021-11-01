@@ -1,10 +1,12 @@
 // @flow
+import { openDialog } from '../base/dialog';
 
-import type { Dispatch } from 'redux';
+
 
 import {
     SET_WALLET_STATE,
 } from './actionTypes';
+import WalletDialog from './components/WalletDialog';
 
 /**
  * Sets the current Wallet state.
@@ -20,5 +22,9 @@ export function setWalletState(walletState: number) {
         type: SET_WALLET_STATE,
         walletState
     };
+}
+
+export function openWalletDialog() {
+    return openDialog(WalletDialog);
 }
 

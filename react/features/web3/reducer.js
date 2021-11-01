@@ -9,7 +9,7 @@ import { WALLET_API_STATES } from './constants';
 
 
 const DEFAULT_STATE = {
-    walletState: WALLET_API_STATES.NEEDS_LOADING,
+    walletState: WALLET_API_STATES.NEEDS_CONNECTING,
 };
 
 /**
