@@ -171,11 +171,7 @@ class WelcomePage extends AbstractWelcomePage {
      * @inheritdoc
      * @returns {ReactElement|null}
      */
-    /*
-    <div className = 'welcome-page-button'>
-                        <button>Connect Wallet</button>
-                    </div>
-*/
+
     render() {
         const { _moderatedRoomServiceUrl, t } = this.props;
         const { DEFAULT_WELCOME_PAGE_LOGO_URL, DISPLAY_WELCOME_FOOTER } = interfaceConfig;
@@ -193,7 +189,7 @@ class WelcomePage extends AbstractWelcomePage {
                 </div>
 
                 <div className = 'header'>
-                    <WalletConnect dispatch= { this.props.dispatch }/>
+                    <WalletConnect/>
 
                     <div className = 'welcome-page-settings'>
                         <SettingsButton
@@ -249,7 +245,7 @@ class WelcomePage extends AbstractWelcomePage {
                                 type = 'button'>
                                 { t('welcomepage.startMeeting') }
                             </button>
-                            <GuildMeetingStart dispatch= { this.dispatch }/>
+                            <GuildMeetingStart/>
                         </div>
                         
 

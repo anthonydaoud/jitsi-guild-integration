@@ -37,3 +37,59 @@
     color: #fff;
     cursor: pointer;
 }
+
+.metamask-button {
+    margin: 0 auto;
+    color: black;
+    background: lightblue;
+    width: calc(80%);
+    padding: 10px 0px;
+}
+
+.guild-select-button {
+    margin: 0 auto;
+    color: white;
+    background: #3732464f;
+    width: calc(50%);
+    padding: 10px 0;
+    display: inline-block;  
+}
+.guild-list-head {
+    text-align: center;
+    color: #FFF;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: 0;
+    margin-bottom: 20px;
+}
+
+.guild-list-row {
+    width: 100%;
+    text-align: center;
+    margin: 10px;
+    position: relative;
+}
+
+.guild-link-button {
+    display: inline-block;
+    background-color: transparent;
+    border-radius: 0px;
+    border-color: transparent;
+    /* margin: auto auto; */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.guild-modal-text-div {
+    text-align: center;
+    font-size: 14;
+    margin-bottom: 20;
+}    
+
+.guild-modal-text-input {
+    width: 250px;
+    margin-bottom: 30px;
+    height: 30px;
+}

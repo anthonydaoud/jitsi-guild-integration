@@ -1,10 +1,8 @@
-// @flow
 import { openDialog } from '../base/dialog';
-
-
-
 import {
     SET_WALLET_STATE,
+    SET_WALLET_ADDRESS,
+    STORE_GUILD_REQUIREMENT
 } from './actionTypes';
 import WalletDialog from './components/WalletDialog';
 
@@ -24,7 +22,22 @@ export function setWalletState(walletState: number) {
     };
 }
 
+export function setWalletAddress(walletAddress: string | null) {
+    return {
+        type: SET_WALLET_ADDRESS,
+        walletAddress
+    };
+}
+
 export function openWalletDialog() {
     return openDialog(WalletDialog);
 }
+
+export function storeGuildRequirement(guildRequirement: string | null) {
+    return {
+        type: STORE_GUILD_REQUIREMENT,
+        guildRequirement
+    }
+}
+
 
