@@ -32,4 +32,4 @@ The client of the user then attempts to join the conference, and the client of t
 ## How to install
 
 The install process is unchanged, please go to the [jitsi install](https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-web) page.
-NOTE: You may have to delete the package-lock.json file for it build, it was an unstated install step for me.
+NOTE: You may have to delete the package-lock.json file for it to build, it was an unstated install step for me.
