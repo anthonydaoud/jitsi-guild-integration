@@ -1,88 +1,34 @@
-# <p align="center">Jitsi Meet</p>
+# <p align="center">Jitsi <> Guild.xyz Hackathon</p>
 
-Jitsi Meet is a set of Open Source projects which empower users to use and deploy
-video conferencing platforms with state-of-the-art video quality and features.
+This document details the features I've implemented to allow for token gated access to Jitsi conference rooms. At a high level, my implementation modifies primarily the welcome page and the lobby screen to achieve this integration. 
 
-<hr />
+## Welcome Page Edits
 
-<p align="center">
-<img src="https://raw.githubusercontent.com/jitsi/jitsi-meet/master/readme-img1.png" width="900" />
-</p>
+The welcome page now has a button that allows you to connect your MetaMask wallet, or that shows you the address of the wallet that is currently connected. 
 
-<hr />
+It also has a button that allows you to gate your conference with a guild. When a user attempts to add this requirement, the App first verifies their membership in the guild and their ownership of the wallet. If these checks pass, the user can then start the meeting with the guild requirement or remove/change it.
 
-Amongst others here are the main features Jitsi Meet offers:
 
-* Support for all current browsers
-* Mobile applications
-* Web and native SDKs for integration
-* HD audio and video
-* Content sharing
-* End-to-End Encryption
-* Raise hand and reactions
-* Chat with private conversations
-* Polls
-* Virtual backgrounds
+## Lobby Screen Edits
 
-And many more!
+When a conference requires permission to access, a user is shown the lobby screen instead. If the conference has a guild requirement, then the lobby screen will display a link to the guild as well as a button allowing the user to prove their membership in the guild.
 
-## Using Jitsi Meet
+If the user's wallet is not connected, the button allows them to sign in via metamask. If the user's wallet is connected and they are part of the guild, the button requests a signature from the user with a verification code (the user doesn't need to retain the code). On signing, their signature will be verified and if valid, they will enter the conference room. 
 
-Using Jitsi Meet is straightforward, as it's browser based. Head over to [meet.jit.si](https://meet.jit.si) and give it a try. It's anonymous, scalable and free to use. All browsers are supported! 
 
-Using mobile? No problem, you can either use your mobile web browser or our fully-featured
-mobile apps:
+## How it works
 
-| Android | Android (F-Droid) | iOS |
-|:-:|:-:|:-:|
-| [<img src="resources/img/google-play-badge.png" height="50">](https://play.google.com/store/apps/details?id=org.jitsi.meet) | [<img src="resources/img/f-droid-badge.png" height="50">](https://f-droid.org/en/packages/org.jitsi.meet/) | [<img src="resources/img/appstore-badge.png" height="50">](https://itunes.apple.com/us/app/jitsi-meet/id1165103905) |
+Under the hood, Jitsi sets up a conference by making calls to an XMPP server that handles their particular conference configuration. If a user specifies a guild requirement, then during the creation of the conference, a unique verification string is generated. This string and the particular guild url are saved in the server room's description. The server is also set to only allow members to join the conference.
 
-If you are feeling adventurous and want to get an early scoop of the features as they are being
-developed you can also sign up for our open beta testing here:
+When a user seeks to join a gated conference, they will automatically be put into the lobby screen waiting room. The client will then check if the conference description contains a guild requirement, and if so, the lobby screen described previously will be shown instead of the default one. When a user signs the verification message so they can join the conference, their message is sent to the server and stored as an attribute of the user. 
 
-* [Android](https://play.google.com/apps/testing/org.jitsi.meet)
-* [iOS](https://testflight.apple.com/join/isy6ja7S)
+The client of the user then attempts to join the conference, and the client of the conference moderator (the user who created the conference) reads the attributes of the user from the server. The conference moderator's client then checks that the signature is valid and from a wallet that is a member of the guild. If the user passes these checks, then they are approved to join the conference. If not, they are automatically rejected.
 
-## Running your own instance
+# Other features
 
-If you'd like to run your own Jitsi Meet installation head over to the [handbook](https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-start) to get started.
+* After creating a guild-gated conference, the conference moderator can turn off and on the guild restriction at will. It's a feature in the Security Options tab of the conference
 
-We provide Debian packages and a comprehensive Docker setup to make deployments as simple as possible.
-Advanced users also have the possibility of building all the components from source.
 
-You can check the latest releases [here](https://jitsi.github.io/handbook/docs/releases).
+# How to install
 
-## Jitsi as a Service
-
-If you like the branding capabilities of running your own instance but you'd like
-to avoid dealing with the complexity of monitoring, scaling and updates, JaaS might be
-for you.
-
-[8x8 Jitsi as a Service (JaaS)](https://jaas.8x8.vc) is an enterprise-ready video meeting platform that allows developers, organizations and businesses to easily build and deploy video solutions. With Jitsi as a Service we now give you all the power of Jitsi running on our global platform so you can focus on building secure and branded video experiences.
-
-## Documentation
-
-All the Jitsi Meet documentation is available in [the handbook](https://jitsi.github.io/handbook/).
-
-## Security
-
-For a comprehensive description of all Jitsi Meet's security aspects, please check [this link](https://jitsi.org/security).
-
-For a detailed description of Jitsi Meet's End-to-End Encryption (E2EE) implementation,
-please check [this link](https://jitsi.org/e2ee-whitepaper/).
-
-For information on reporting security vulnerabilities in Jitsi Meet, see [SECURITY.md](./SECURITY.md).
-
-## Contributing
-
-If you are looking to contribute to Jitsi Meet, first of all, thank you! Please
-see our [guidelines for contributing](CONTRIBUTING.md).
-
-<br />
-<br />
-
-<footer>
-<p align="center" style="font-size: smaller;">
-Built with ❤️ by the Jitsi team at <a href="https://8x8.com" target="_blank">8x8</a> and our community.
-</p>
-</footer>
+The install process is unchanged, please go to the [jitsi install](https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-web) page.
