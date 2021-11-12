@@ -1,9 +1,13 @@
 import { Component } from 'react';
-import { WALLET_API_STATES } from '../constants';
-import { setWalletState, setWalletAddress } from '../actions';
+import { ethers } from 'ethers';
 
+import { setWalletState, setWalletAddress, storeGuildRequirement } from '../actions';
+import { WALLET_API_STATES, MESSAGE_SIGN_TEXT } from '../constants';
 
-export class AbstractWeb3Connect extends Component {
+/**
+ * Implements some useful web3 connection functions
+ */
+export default class AbstractWeb3Connect extends Component {
 
     constructor(props) {
         super(props);
@@ -12,6 +16,7 @@ export class AbstractWeb3Connect extends Component {
         this._handleChainChanged = this._handleChainChanged.bind(this);
         this._handleAccountsChanged = this._handleAccountsChanged.bind(this);
         this._onClickConnectToMetamask = this._onClickConnectToMetamask.bind(this);
+        this._loadMetamask = this._loadMetamask.bind(this);
     }
     
     /**
@@ -22,8 +27,16 @@ export class AbstractWeb3Connect extends Component {
         window.location.reload();
     }
 
-    // For now, 'eth_accounts' will continue to always return an array
-    _handleAccountsChanged(accounts) {
+    /**
+     * Handles wallet account change
+     * 
+     * @param {array} accounts 
+     * @param {boolean} isLobby 
+     */
+    _handleAccountsChanged(accounts, isLobby) {
+        if (!isLobby) {
+            this.props.dispatch(storeGuildRequirement(null))
+        }
         if (accounts.length === 0) {
             if (this.props._walletAddress) {
                 //Account was not null, must have logged out
@@ -37,6 +50,9 @@ export class AbstractWeb3Connect extends Component {
         }
     }
 
+    /**
+     * Handles connnecting to MetaMask
+     */
     _onClickConnectToMetamask() {
         ethereum
             .request({ method: 'eth_requestAccounts' })
@@ -52,5 +68,62 @@ export class AbstractWeb3Connect extends Component {
                 console.error(err);
             }
         });
+    }
+
+    /**
+     * Loads MetaMask on initial mount
+     */
+    async _loadMetamask() {
+        if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+            ethereum
+                .request({ method: 'eth_accounts' })
+                .then((accounts) => {
+                    this._handleAccountsChanged(accounts)
+                })
+                .catch((err) => {
+                // Some unexpected error.
+                // For backwards compatibility reasons, if no accounts are available,
+                // eth_accounts will return an empty array.
+                console.error(err);
+                });
+            ethereum.on('chainChanged', this._handleChainChanged);
+            ethereum.on('accountsChanged', (accounts) => { 
+                this._handleAccountsChanged(accounts);
+            });
+        }
+    }
+
+    /**
+     * Signs a message and returns the message, signature,
+     * and address
+     * 
+     * @param {string} message 
+     * @param {string} customMessage 
+     * @returns object
+     */
+    async _signMessage(message, customMessage = null) {
+        try {
+            const provider = new ethers.providers.Web3Provider(ethereum);
+            const signer = provider.getSigner();
+            let signature;
+            if (customMessage) {
+                signature = await signer.signMessage(customMessage);
+            } else {
+                signature = await signer.signMessage(MESSAGE_SIGN_TEXT+message);
+            }
+            const address = await signer.getAddress();
+
+            return {
+                message,
+                signature,
+                address
+            }
+        } catch (err) {
+            if (err.code === 4001) {
+                console.log("Please sign the message to enter");
+            } else {
+                console.log(err)
+            }
+        }
     }
 }

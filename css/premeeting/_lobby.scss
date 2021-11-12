@@ -41,6 +41,28 @@
     }
 }
 
+.lobby-guild-form {
+    text-align: center;
+
+    .guild-text {
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .bad-wallet-text {
+        margin: 10px auto;
+    }
+
+    .sign-and-enter {
+        top: 15px
+    }
+}
+
+.lobby-metamask-install {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
 #notification-participant-list {
     background-color: $newToolbarBackgroundColor;
     border: 1px solid rgba(255, 255, 255, .4);

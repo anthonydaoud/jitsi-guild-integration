@@ -201,6 +201,33 @@ export function startKnocking() {
 }
 
 /**
+ * Knocking procedure for conferences with guild requirement
+ *
+ * @returns {Function}
+ */
+ export function startGuildKnocking(signed) {
+    const { signature, address } = signed;
+    return async (dispatch: Dispatch<any>, getState: Function) => {
+        const state = getState();
+        const { membersOnly } = state['features/base/conference'];
+        const localParticipant = getLocalParticipant(state);
+        dispatch(conferenceWillJoin(membersOnly));
+
+        // We need to update the conference object with the current display name, if approved
+        // we want to send that display name, it was not updated in case when pre-join is disabled
+        sendLocalParticipant(state, membersOnly);
+
+        await Promise.all([
+                APP.connection.addFeature("Signature:"+signature, true),
+                APP.connection.addFeature("Address:"+address, true)
+        ]);
+
+        //Will either join or fail after this, depending on if you are actually a member of the guild
+        membersOnly.joinLobby(localParticipant.name, localParticipant.email)
+    };
+}
+
+/**
  * Action to toggle lobby mode on or off.
  *
  * @param {boolean} enabled - The desired (new) state of the lobby mode.

@@ -9,6 +9,9 @@ import { connect } from '../../../base/redux';
 import AbstractLobbyScreen, {
     _mapStateToProps
 } from '../AbstractLobbyScreen';
+import WalletSignInButton from './WalletSignInButton';
+import { storeGuildRequirement, setChallenge } from '../../../web3/actions';
+import { ALL_GUILDS_URL, MAIN_GUILD_URL, METAMASK_MAIN_URL } from '../../../web3/constants'
 
 /**
  * Implements a waiting screen that represents the participant being in the lobby.
@@ -30,6 +33,69 @@ class LobbyScreen extends AbstractLobbyScreen {
                 title = { t(this._getScreenTitleKey()) }>
                 { this._renderContent() }
             </PreMeetingScreen>
+        );
+    }
+
+    /**
+     * Fetches all guilds, then stores the required one
+     * 
+     * @param {string} guildUrlName 
+     */
+    _setupGuildData(guildUrlName) {
+        fetch(ALL_GUILDS_URL).then((res) => {
+            return res.json()
+        }).then( (allGuilds) => {
+            let i = 0;
+            for (; i < allGuilds.length; i++) {
+                if (allGuilds[i].urlName === guildUrlName) {
+                    this.props.dispatch(storeGuildRequirement(allGuilds[i]));
+                    break;
+                }
+            }
+        }).catch((err) => {
+            console.error(err);
+        });
+    }
+
+    /**
+     * Helper to extract the guild url name and challenge string before
+     * passing this info on or storing it.
+     * 
+     * @param {string} guildEntryRequirement 
+     */
+    _setupWalletAccess(guildEntryRequirement) {
+        //Input string will be formatted like Guild:...;Challenge:...
+        const guildUrl = guildEntryRequirement.split(';')[0];        
+        const challenge = guildEntryRequirement.split(';')[1];
+        this._setupGuildData(guildUrl.split(':')[1])
+        this.props.dispatch(setChallenge(challenge.split(':')[1]))
+    }
+
+    /**
+     * On mounting, check the lobby room description. If the conference requires
+     * guild access, description will have the entry requirements
+     * 
+     * @inheritdoc
+     */
+    componentDidMount() {
+        const roomName = Object.keys(APP.connection.xmpp.connection.emuc.rooms)[0];
+        const getInfo = $iq({
+            type: 'get',
+            to: roomName
+        }).c('query', { xmlns: Strophe.NS.DISCO_INFO });
+        APP.connection.xmpp.connection.sendIQ(getInfo, 
+            (res) => {
+                res = $(res).find('>query>x>field[var="muc#roominfo_description"]');
+                const guildEntryRequirement = res[0].textContent;
+                if (guildEntryRequirement !== "") {
+                    this._setupWalletAccess(guildEntryRequirement)
+                } else {
+                    this.props.dispatch(storeGuildRequirement(null));
+                }
+            }, 
+            (err)=> {
+                console.error(err)
+            }
         );
     }
 
@@ -155,6 +221,39 @@ class LobbyScreen extends AbstractLobbyScreen {
                 </ActionButton>
             </>
         );
+    }
+
+    _renderGuildButtons() {
+        const { displayName } = this.state;
+        const { t, _guildRequirement } = this.props;
+        
+        const hasMetamask = typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
+        if (!hasMetamask) {
+
+            return (
+                <div className='lobby-metamask-install'>
+                    <a href={METAMASK_MAIN_URL} target="_blank">MetaMask </a>
+                    is required to join this meeting, please install it first 
+                </div>
+            );
+        }
+    
+        const link = <a href={MAIN_GUILD_URL+"/guild/"+_guildRequirement.urlName} target="_blank">
+                        {_guildRequirement.name}
+                        </a>;
+        return (
+            <div className='lobby-guild-form'>
+                <div className='guild-text'>
+                    This meeting requires access to the {link} guild
+                </div>
+                <InputField
+                    onChange = { this._onChangeDisplayName }
+                    placeHolder = { t('lobby.nameField') }
+                    testId = 'lobby.nameField'
+                    value = { displayName } />
+                <WalletSignInButton />
+            </div>
+        )
     }
 
     /**

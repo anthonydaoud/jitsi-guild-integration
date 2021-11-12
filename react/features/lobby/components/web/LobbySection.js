@@ -21,6 +21,11 @@ type Props = {
     _visible: boolean,
 
     /**
+     * If there is a guild requirement, will not be null
+     */
+    _guildRequirement: Object | null,
+
+    /**
      * The Redux Dispatch function.
      */
     dispatch: Function,
@@ -82,8 +87,14 @@ class LobbySection extends PureComponent<Props, State> {
     render() {
         const { _visible, t } = this.props;
 
+        let guildReqText;
+        let guildReqLabel;
         if (!_visible) {
             return null;
+        } else {
+            guildReqText = 'You can disable or enable the guild entry requirement. Participants will need to ' +
+                'connect via MetaMask and prove their guild membership to join.';
+            guildReqLabel = 'Enable Guild Requirement';
         }
 
         return (
@@ -92,11 +103,11 @@ class LobbySection extends PureComponent<Props, State> {
                     <p
                         className = 'description'
                         role = 'banner'>
-                        { t('lobby.enableDialogText') }
+                        { this.props._guildRequirement ? guildReqText : t('lobby.enableDialogText') }
                     </p>
                     <div className = 'control-row'>
                         <label htmlFor = 'lobby-section-switch'>
-                            { t('lobby.toggleLabel') }
+                            { this.props._guildRequirement ? guildReqLabel : t('lobby.toggleLabel') }
                         </label>
                         <Switch
                             id = 'lobby-section-switch'
@@ -140,7 +151,8 @@ function mapStateToProps(state: Object): $Shape<Props> {
     return {
         _lobbyEnabled: state['features/lobby'].lobbyEnabled,
         _visible: conference && conference.isLobbySupported() && isLocalParticipantModerator(state)
-            && !hideLobbyButton
+            && !hideLobbyButton,
+        _guildRequirement: state['features/web3'].guildRequirement
     };
 }
 

@@ -1,9 +1,14 @@
 import React from 'react';
-import { openWalletDialog, setWalletAddress } from '../actions';
-import { WALLET_API_STATES } from '../constants';
 import { connect } from '../../base/redux';
-import { AbstractWeb3Connect } from './AbstractWeb3Connect';
 
+import WalletDialog from './WalletDialog';
+import AbstractWeb3Connect from './AbstractWeb3Connect';
+import { openWalletDialog, setAllGuilds } from '../actions';
+import { WALLET_API_STATES, ALL_GUILDS_URL } from '../constants';
+
+/**
+ * The connect button on the welcome screen
+ */
 class WalletConnect extends AbstractWeb3Connect {
 
     /**
@@ -11,57 +16,41 @@ class WalletConnect extends AbstractWeb3Connect {
      *
      * @inheritdoc
      */
-    
     constructor(props: Props) {
         super(props);
 
         // Bind event handlers so they are only bound once per instance.
         this._onClick = this._onClick.bind(this);
-        this.state = {
-            ...this.state,
-        }
     }
 
-    /**
-     * Implements React's {@link Component#render()}, renders the wallet connect 
-     * button.
-     * 
-     * @inheritdoc
-     * @returns {ReactElement}
-     */
     render() {
-    
-    return (
-        <button 
-        className = 'welcome-wallet-button'
-        onClick ={ this._onClick }
-        type = 'button' >
-        {this.props._walletAddress ? this._makeButtonLabel() : "Connect Wallet"}
-        </button>
-        );
+        return (<button 
+                    className = 'welcome-wallet-button'
+                    onClick ={ this._onClick }
+                    type = 'button' >
+                    {this.props._walletAddress ? this._makeButtonLabel() : "Connect Wallet"}
+                </button>);
     }
 
     async componentDidMount() {
-        if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
-            ethereum
-                .request({ method: 'eth_accounts' })
-                .then((accounts) => {
-                    this._handleAccountsChanged(accounts)
-                })
-                .catch((err) => {
-                // Some unexpected error.
-                // For backwards compatibility reasons, if no accounts are available,
-                // eth_accounts will return an empty array.
-                console.error(err);
-                });
-            ethereum.on('chainChanged', this._handleChainChanged);
-            ethereum.on('accountsChanged', (accounts) => { 
-                this._handleAccountsChanged(accounts);
-            });
-        }
-
+        this._loadMetamask()
+        
+        fetch(ALL_GUILDS_URL).then((res) => {
+            return res.json()
+        }).then( (allGuilds) => {
+            allGuilds.sort((a, b) => a.name.localeCompare(b.name))
+            this.props.dispatch(setAllGuilds(allGuilds));
+        }).catch((err) => {
+            console.error(err);
+        });
     }
 
+
+    /**
+     * Helper function to get the button string from the wallet address
+     * 
+     * @returns string
+     */
     _makeButtonLabel() {
         const acc = this.props._walletAddress;
         return acc.substring(0,6) + "..." + acc.substring(acc.length-6);
@@ -70,17 +59,14 @@ class WalletConnect extends AbstractWeb3Connect {
     async _onClick() {
         switch (this.props._walletState) {
             case WALLET_API_STATES.INSTALL_METAMASK:
-                this.props.dispatch(openWalletDialog());
+                this.props.dispatch(openWalletDialog(WalletDialog));
                 break;
             case WALLET_API_STATES.NEEDS_CONNECTING:
-                this.props.dispatch(openWalletDialog())
+                this.props.dispatch(openWalletDialog(WalletDialog));
                 break;
             case WALLET_API_STATES.SIGNED_IN:
-                //TODO: what do I show if signed in?
-                {}
+                //Note, could add another feature here in the future
                 break;
-            default: 
-                console.log(this.props._walletState)
         }
     }
 }
@@ -89,7 +75,6 @@ function _mapStateToProps(state) {
     return {
         _walletState: state['features/web3'].walletState,
         _walletAddress: state['features/web3'].walletAddress
-
     };
 }
 

@@ -319,6 +319,14 @@ export default class AbstractLobbyScreen<P: Props = Props> extends PureComponent
     _renderContent() {
         const { _knocking } = this.props;
         const { screenState } = this.state;
+        if (this.props._guildRequirement !== null) {
+            //Handle guild requirement, no password options
+            return (
+                <>
+                    { this._renderGuildButtons() }
+                </>
+            )
+        }
 
         if (screenState !== SCREEN_STATES.PASSWORD && _knocking) {
             return this._renderJoining();
@@ -407,6 +415,7 @@ export function _mapStateToProps(state: Object): $Shape<Props> {
         _participantName: localParticipant?.name,
         _passwordJoinFailed: passwordJoinFailed,
         _renderPassword: !iAmSipGateway,
+        _guildRequirement: state['features/web3'].guildRequirement,
         showCopyUrlButton
     };
 }

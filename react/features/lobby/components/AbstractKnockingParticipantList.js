@@ -69,10 +69,12 @@ export default class AbstractKnockingParticipantList<P: Props = Props> extends P
 export function mapStateToProps(state: Object): $Shape<Props> {
     const lobbyEnabled = getLobbyEnabled(state);
     const knockingParticipants = getKnockingParticipants(state);
+    const { guildRequirement } = state['features/web3'];
 
     return {
         _participants: knockingParticipants,
         _visible: lobbyEnabled && isLocalParticipantModerator(state)
           && Boolean(knockingParticipants && knockingParticipants.length)
+          && !guildRequirement
     };
 }

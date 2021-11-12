@@ -65,17 +65,24 @@ StateListenerRegistry.register(
             });
 
             conference.on(JitsiConferenceEvents.LOBBY_USER_JOINED, (id, name) => {
+                const { guildRequirement, challenge } = getState()['features/web3'];
                 batch(() => {
                     dispatch(participantIsKnockingOrUpdated({
                         id,
-                        name
+                        name,
+                        guildRequirement,
+                        challenge,
+                        conference
                     }));
-                    dispatch(playSound(KNOCKING_PARTICIPANT_SOUND_ID));
-                    if (typeof APP !== 'undefined') {
-                        APP.API.notifyKnockingParticipant({
-                            id,
-                            name
-                        });
+                    //if there is a guild requirement, will auto accept or deny
+                    if (!guildRequirement) {
+                        dispatch(playSound(KNOCKING_PARTICIPANT_SOUND_ID));
+                        if (typeof APP !== 'undefined') {
+                            APP.API.notifyKnockingParticipant({
+                                id,
+                                name
+                            });
+                        }
                     }
                 });
             });
@@ -123,9 +130,10 @@ function _conferenceFailed({ dispatch, getState }, next, action) {
 
         dispatch(openLobbyScreen());
 
-        if (shouldAutoKnock(state)) {
-            dispatch(startKnocking());
-        }
+        // Don't allow auto-knock, will cause guild access to auto fail
+        //if (shouldAutoKnock(state)) {
+        //    dispatch(startKnocking());
+        //}
 
         dispatch(setPasswordJoinFailed(nonFirstFailure));
 

@@ -1,23 +1,24 @@
-// @flow
-
 import { PersistenceRegistry, ReducerRegistry, set } from '../base/redux';
 
 import {
     SET_WALLET_STATE,
     SET_WALLET_ADDRESS,
+    SET_ALL_GUILDS,
+    SET_CHALLENGE,
     STORE_GUILD_REQUIREMENT
 } from './actionTypes';
 import { WALLET_API_STATES } from './constants';
 
 
 const DEFAULT_STATE = {
-    walletState: WALLET_API_STATES.INSTALL_METAMASK,
-    walletAddress: null,
+    allGuilds: null,
+    challenge: null,
     guildRequirement: null,
+    walletAddress: null,
+    walletState: WALLET_API_STATES.INSTALL_METAMASK
 };
 
 const STORE_NAME = 'features/web3';
-
 
 /**
  * Sets up the persistence of each feature.
@@ -47,12 +48,21 @@ ReducerRegistry.register(STORE_NAME,
                 ...state,
                 walletAddress: action.walletAddress
             }
+        case SET_ALL_GUILDS:
+            return {
+                ...state,
+                allGuilds: action.allGuilds
+            }
+        case SET_CHALLENGE:
+            return {
+                ...state,
+                challenge: action.challenge
+            }
         case STORE_GUILD_REQUIREMENT:
             return {
                 ...state,
                 guildRequirement: action.guildRequirement
             }
         }
-
     return state;
     });

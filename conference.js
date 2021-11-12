@@ -141,6 +141,8 @@ import { createPresenterEffect } from './react/features/stream-effects/presenter
 import { createRnnoiseProcessor } from './react/features/stream-effects/rnnoise';
 import { endpointMessageReceived } from './react/features/subtitles';
 import UIEvents from './service/UI/UIEvents';
+import { toggleLobbyMode } from './react/features/lobby/actions.any';
+import { generateChallenge } from './react/features/web3/functions';
 
 const logger = Logger.getLogger(__filename);
 
@@ -2003,6 +2005,49 @@ export default {
     },
 
     /**
+     * Setup the conference to have the challenge in the description
+     */
+    _setupWeb3Meeting() {
+        APP.store.dispatch(toggleLobbyMode(true));
+        const roomName = Object.keys(APP.connection.xmpp.connection.emuc.rooms)[0];
+        const guild = APP.store.getState()["features/web3"].guildRequirement['urlName'];
+        const challenge = generateChallenge();
+        const roomDesc = "Guild:"+guild+";Challenge:"+challenge;
+        const formsubmit
+            = $iq({
+                to: roomName,
+                type: 'set'
+            })
+                .c('query', {
+                    xmlns: 'http://jabber.org/protocol/muc#owner'
+                });
+        formsubmit.c('x', {
+            xmlns: 'jabber:x:data',
+            type: 'submit'
+        });
+        formsubmit
+            .c('field', { 'var': 'FORM_TYPE' })
+            .c('value')
+            .t('http://jabber.org/protocol/muc#roomconfig')
+            .up()
+            .up();
+        formsubmit
+            .c('field', { 'var': 'muc#roomconfig_roomdesc' })
+            .c('value')
+            .t(roomDesc)
+            .up()
+            .up();
+
+        APP.connection.xmpp.connection.sendIQ(formsubmit, 
+            () => {
+                logger.log("Set guild requirement to", guild)
+            }, (e) => {
+                logger.error("Couldn't set guild", e)
+            }
+        );
+    },
+
+    /**
      * Setup interaction between conference and UI.
      */
     _setupListeners() {
@@ -2078,6 +2123,11 @@ export default {
 
                 APP.store.dispatch(localParticipantRoleChanged(role));
                 APP.API.notifyUserRoleChanged(id, role);
+                // If there is a guildRequirement and you are now moderator, setup the 
+                // gated meeting
+                if (role === "moderator" && APP.store.getState()["features/web3"].guildRequirement) {
+                    this._setupWeb3Meeting()
+                }
             } else {
                 APP.store.dispatch(participantRoleChanged(id, role));
             }
