@@ -24,11 +24,11 @@ When a user seeks to join a gated conference, they will automatically be put int
 
 The client of the user then attempts to join the conference, and the client of the conference moderator (the user who created the conference) reads the attributes of the user from the server. The conference moderator's client then checks that the signature is valid and from a wallet that is a member of the guild. If the user passes these checks, then they are approved to join the conference. If not, they are automatically rejected.
 
-# Other features
+## Other features
 
 * After creating a guild-gated conference, the conference moderator can turn off and on the guild restriction at will. It's a feature in the Security Options tab of the conference
 
 
-# How to install
+## How to install
 
 The install process is unchanged, please go to the [jitsi install](https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-web) page.
