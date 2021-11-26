@@ -3,7 +3,8 @@ import { connect } from '../../base/redux';
 
 import WalletDialog from './WalletDialog';
 import AbstractWeb3Connect from './AbstractWeb3Connect';
-import { openWalletDialog, setAllGuilds } from '../actions';
+import { setAllGuilds, setChallenge, setWalletAddress, setWalletState, 
+    storeGuildRequirement, openWalletDialog } from '../actions';
 import { WALLET_API_STATES, ALL_GUILDS_URL } from '../constants';
 
 /**
@@ -32,8 +33,17 @@ class WalletConnect extends AbstractWeb3Connect {
                 </button>);
     }
 
+    _clearSavedState() {
+        this.props.dispatch(setAllGuilds(null));
+        this.props.dispatch(setChallenge(null));
+        this.props.dispatch(setWalletAddress(null));
+        this.props.dispatch(setWalletState(WALLET_API_STATES.INSTALL_METAMASK));
+        this.props.dispatch(storeGuildRequirement(null));
+    }
+
     async componentDidMount() {
-        this._loadMetamask()
+        this._clearSavedState();
+        this._loadMetamask();
         
         fetch(ALL_GUILDS_URL).then((res) => {
             return res.json()

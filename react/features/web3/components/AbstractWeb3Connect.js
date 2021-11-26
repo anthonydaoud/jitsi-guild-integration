@@ -41,9 +41,8 @@ export default class AbstractWeb3Connect extends Component {
             if (this.props._walletAddress) {
                 //Account was not null, must have logged out
                 this.props.dispatch(setWalletAddress(null));
-                this.props.dispatch(setWalletState(WALLET_API_STATES.NEEDS_CONNECTING));
-
             }
+            this.props.dispatch(setWalletState(WALLET_API_STATES.NEEDS_CONNECTING));
         } else if (accounts[0] !== this.props._walletAddress) {
             this.props.dispatch(setWalletAddress(accounts[0]));
             this.props.dispatch(setWalletState(WALLET_API_STATES.SIGNED_IN));
