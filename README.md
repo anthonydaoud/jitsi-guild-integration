@@ -2,6 +2,8 @@
 
 This document details the features I've implemented to allow for token gated access to Jitsi conference rooms. At a high level, my implementation modifies primarily the welcome page and the lobby screen to achieve this integration. 
 
+If you'd like to see a walkthrough of the App, please check out [this video](https://youtu.be/VdOXGl7CKTM).
+
 ## Welcome Page Edits
 
 The welcome page now has a button that allows you to connect your MetaMask wallet, or that shows you the address of the wallet that is currently connected. 
